@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+    # Jenkins 服务：用于定时触发代码同步任务
+    # 通过容器内的 Docker socket 与主机 Docker 通信，触发代码同步容器
+    jenkins:
+        container_name: repo-sync
+        # 如果使用自定义构建，请使用 build 字段，如果使用官方镜像，请使用 image 字段，二者互斥。
+        # image: jenkins/jenkins:lts
+        build:
+            context: .
+            dockerfile: docker/jenkins.Dockerfile
+        ports:
+            - "8081:8080" # 将容器 8080 端口映射到主机 8081 端口
+        user: root # 以 root 用户运行，确保有权限访问 Docker socket
+        volumes:
+            - ~/jenkins_home:/var/jenkins_home # Jenkins 数据持久化
+            - ~/opengrok/src:/opengrok/src # 共享源码目录，用于代码同步
+            - /var/run/docker.sock:/var/run/docker.sock # 挂载 Docker socket，允许 Jenkins 控制 Docker
+            - ~/.ssh/known_hosts:/var/jenkins_home/.ssh/known_hosts # SSH 已知主机列表
+        environment:
+            TZ: "Asia/Shanghai" # 设置时区
+        restart: unless-stopped # 容器退出时自动重启，除非手动停止
+
+    # OpenGrok 服务：代码搜索引擎和 Web 界面
+    # 参考：https://github.com/oracle/opengrok/tree/master/docker
+    opengrok:
+        container_name: repo-index
+        # 如果使用自定义构建，请使用 build 字段，如果使用官方镜像，请使用 image 字段，二者互斥。
+        # image: opengrok/docker:latest
+        build:
+            context: .
+            dockerfile: docker/opengrok.Dockerfile
+        ports:
+            - "8080:8080/tcp" # OpenGrok Web 界面访问端口
+        environment:
+            TZ: "Asia/Shanghai" # 时区设置
+
+            # 索引配置
+            REINDEX: "0" # 0=不强制重新索引，1=强制重新索引（初次部署时可设为 1）
+            WORKERS: "4" # 索引工作线程数，根据 CPU 核心数调整（一般设为 CPU 核心数）
+
+            # 同步配置
+            SYNC_PERIOD_MINUTES: "0" # 0=禁用自动同步，>0=自动同步间隔（分钟）
+            NOMIRROR: "1" # 1=禁用镜像同步，0=启用镜像同步
+        volumes:
+            # Git 配置：用于身份验证和配置
+            - ~/.gitconfig:/root/.gitconfig # Git 全局配置
+            - ~/.ssh:/root/.ssh # SSH 密钥
+
+            # OpenGrok 数据目录
+            - ~/opengrok/src:/opengrok/src # 源码目录（存放要索引的代码）
+            - ~/opengrok/etc:/opengrok/etc # 配置文件目录（自动生成 configuration.xml）
+            - ~/opengrok/data:/opengrok/data # 索引数据和运行时文件
+        restart: unless-stopped # 容器退出时自动重启，除非手动停止

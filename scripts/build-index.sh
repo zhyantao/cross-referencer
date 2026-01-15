@@ -1,0 +1,78 @@
+#!/bin/bash
+# OpenGrok 手动索引脚本
+# 用于手动触发 OpenGrok 索引更新
+# 参考文档：https://github.com/oracle/opengrok/blob/master/README.md
+
+# 在 OpenGrok 容器中执行索引命令
+docker exec -i repo-index opengrok-indexer \
+    -a /opengrok/lib/opengrok.jar \
+    -- \
+    -s /opengrok/src \
+    -d /opengrok/data \
+    -W /opengrok/etc/configuration.xml \
+    --remote on \
+    -U http://localhost:8080 \
+    -H -P -G \
+    -m 2048 \
+    -i '*/.repo/*' \
+    -i '.gitlab-ci.yml' \
+    -i '.gitignore' \
+    -i '.gitattributes' \
+    -i '.gitmodules' \
+    -i '.github/' \
+    -i '.gitlab/' \
+    -i '.svn/' \
+    -i '.hg/' \
+    -i '.cvsignore' \
+    -i '*.o' \
+    -i '*.obj' \
+    -i '*.so' \
+    -i '*.dll' \
+    -i '*.exe' \
+    -i '*.out' \
+    -i '*.elf' \
+    -i '*.bin' \
+    -i '*.hex' \
+    -i '*.a' \
+    -i '*.lib' \
+    -i '*.dylib' \
+    -i '*.pyc' \
+    -i '*.pyo' \
+    -i '__pycache__/' \
+    -i '*.class' \
+    -i '*.jar' \
+    -i '*.war' \
+    -i '*.zip' \
+    -i '*.tar.gz' \
+    -i '*.tar.bz2' \
+    -i '*.tar.xz' \
+    -i '*.7z' \
+    -i '*.rar' \
+    -i 'node_modules/' \
+    -i 'vendor/' \
+    -i 'dist/' \
+    -i 'build/' \
+    -i 'output/' \
+    -i 'Debug/' \
+    -i 'Release/' \
+    -i 'x64/' \
+    -i 'x86/' \
+    -i '.vs/' \
+    -i '.idea/' \
+    -i '.vscode/' \
+    -i '.settings/' \
+    -i '*.suo' \
+    -i '*.user' \
+    -i '*.log' \
+    -i '*.tmp' \
+    -i '*.temp' \
+    -i '*.swp' \
+    -i '*.swo' \
+    -i '*.swn' \
+    -i '.DS_Store' \
+    -i 'Thumbs.db' \
+    -i '*.bak' \
+    -i '*.backup' \
+    -i '*.orig' \
+    -i '*.rej' \
+    -i '*.patch'
