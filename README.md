@@ -50,7 +50,7 @@ crontab -e
 
 # 每天 22:30 执行 Python 脚本，并将输出追加到日志文件中
 # 格式：分钟 小时 日期 月份 星期 命令
-30 22 * * * python3 /path/to/cross-referencer/scripts/get-code.py >> ~/opengrok_logs/cron_check.log
+30 22 * * * python3 /path/to/cross-referencer/scripts/get-code.py >> ~/cron/log/cron.log
 ```
 
 重启 cron 服务
