@@ -123,9 +123,12 @@ def main():
 
     # Step 6: Run get-code script if it exists
     print("\n3. Running get-code script...")
-    get_code_script = os.path.join(target_dir, "scripts", "get-code.py")
+    get_code_script = os.path.join(
+        os.environ["HOME"], "workshop", "cross-referencer", "scripts", "get-code.py"
+    )
+    print(f"Checking for get-code script at: {get_code_script}")
     if os.path.exists(get_code_script):
-        if not run_command("python3 scripts/get-code.py"):
+        if not run_command(f"python3 {get_code_script}"):
             print("Get-code script execution failed")
             return 1
     else:
