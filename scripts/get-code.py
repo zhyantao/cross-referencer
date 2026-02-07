@@ -116,23 +116,11 @@ def main():
         return 1
 
     # Step 5: Sync code directly to target directory
-    print("\n2. Syncing code repositories directly to target directory...")
-    if not run_command("repo sync -j8"):
+    print(f"\n2. Syncing code repositories directly to {target_dir}...")
+    repo_sync_cmd = f"cd {target_dir}/.repo/manifests; git pull --rebase; cd {target_dir}; repo sync --force-sync -j8"
+    if not run_command(repo_sync_cmd):
         print("Repo sync failed")
         return 1
-
-    # Step 6: Run get-code script if it exists
-    print("\n3. Running get-code script...")
-    get_code_script = os.path.join(
-        os.environ["HOME"], "workshop", "cross-referencer", "scripts", "get-code.py"
-    )
-    print(f"Checking for get-code script at: {get_code_script}")
-    if os.path.exists(get_code_script):
-        if not run_command(f"python3 {get_code_script}"):
-            print("Get-code script execution failed")
-            return 1
-    else:
-        print("No get-code script found, skipping...")
 
     print("\n" + "=" * 60)
     print("Code synchronization completed!")
