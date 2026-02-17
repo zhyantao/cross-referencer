@@ -2,3 +2,4 @@ opengrok/
 jenkins_home/
 !config/jenkins_home/
 *.jar
+.DS_Store
